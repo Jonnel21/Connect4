@@ -1,16 +1,22 @@
 import java.awt.*;
 import javax.swing.*;
 public class Game {
-	
+
 	private int[][] board = new int[0][0];
 	private int rows;
 	private int columns;
-	private JButton[] buttons;
+	private JButton[] buttons; // instantiate an array of buttons
 	public Game()
 	{
 		
 	}
 	
+	/**
+	 * creates a board with a number
+	 * of rows and columns
+	 * @param rows
+	 * @param columns
+	 */
 	public Game(int rows, int columns)
 	{
 		this.rows = rows;
@@ -19,6 +25,10 @@ public class Game {
 		setupBoard();
 	}
 	
+	/**
+	 * sets up the frame, panel, button for board
+	 * and the buttons iterate over how many columns
+	 */
 	public void setupBoard()
 	{
 		JFrame frame = new JFrame();
@@ -27,7 +37,7 @@ public class Game {
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(frame.EXIT_ON_CLOSE);
 		frame.setSize(800,400);
-		frame.add(panel);
+		frame.add(panel); // adds the JPanel to the JFrame
 		
 		buttons = new JButton[columns];
 		for(int i = 0; i<columns; i++)
@@ -36,19 +46,31 @@ public class Game {
 			panel.add(buttons[i]);
 		}
 		
-		panel.setBackground(Color.YELLOW);
+		panel.setBackground(Color.YELLOW); //set the background to yellow
 	}
 	
+	/**
+	 * gets the number of rows of the board
+	 * @return int of rows
+	 */
 	public int getRows()
 	{
 		return this.rows;
 	}
 	
+	/**
+	 * gets the number of columns of the board
+	 * @return int of columns
+	 */
 	public int getColumns()
 	{
 		return this.columns;
 	}
 	
+	/**
+	 * prints the current board onto
+	 * the console
+	 */
 	public void print()
 	{
 		for(int i = 0; i<this.rows; i++)
@@ -60,8 +82,6 @@ public class Game {
 			System.out.println();
 		}
 	}
-	
-	
 	
 	public static void main(String[] args)
 	{
