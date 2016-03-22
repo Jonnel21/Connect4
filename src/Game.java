@@ -1,11 +1,15 @@
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.*;
-public class Game {
 
-	private int[][] board = new int[0][0];
+public class Game implements ActionListener{
+
+	private JButton[][] board = new JButton[0][0];
+	private JButton[] buttons;
 	private int rows;
 	private int columns;
-	private JButton[] buttons; // instantiate an array of buttons
+	
 	public Game()
 	{
 		
@@ -21,7 +25,9 @@ public class Game {
 	{
 		this.rows = rows;
 		this.columns = columns;
-		board = new int[this.rows][this.columns];
+		buttons = new JButton[this.columns];
+		board = new JButton[this.rows][this.columns];
+		
 		setupBoard();
 	}
 	
@@ -32,21 +38,35 @@ public class Game {
 	public void setupBoard()
 	{
 		JFrame frame = new JFrame();
-		JPanel panel = new JPanel(new FlowLayout());
+		JPanel panel = new JPanel(new GridLayout(this.rows +1, this.columns));
 		
 		frame.setVisible(true);
-		frame.setDefaultCloseOperation(frame.EXIT_ON_CLOSE);
-		frame.setSize(800,400);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(500,500);
 		frame.add(panel); // adds the JPanel to the JFrame
+		panel.setSize(500,500);
 		
-		buttons = new JButton[columns];
-		for(int i = 0; i<columns; i++)
+		for(int j = 0; j<this.columns; j++) // sets up the buttons that will be enabled to be clicked 
 		{
-			buttons[i] = new JButton();
-			panel.add(buttons[i]);
+			JButton pressed = new JButton();
+			buttons[j] = pressed;
+			panel.add(buttons[j]);
+			buttons[j].addActionListener(this); // adds action listener to the enabled buttons
 		}
 		
-		panel.setBackground(Color.YELLOW); //set the background to yellow
+		for(int i = 0; i<rows; i++) // sets up the buttons of the board that is disabled
+		{						
+			for(int j = 0; j<columns; j++)
+			{
+				JButton button = new JButton();
+				button.setEnabled(false);
+				board[i][j] = button;
+				panel.add(board[i][j]);
+				
+			}	
+		}
+		
+		frame.pack();
 	}
 	
 	/**
@@ -83,12 +103,25 @@ public class Game {
 		}
 	}
 	
-	public static void main(String[] args)
+	/**
+	 * The enabled buttons will be pressed
+	 * and  should register to the console and print
+	 * out Pressed..
+	 */
+	@Override
+	public void actionPerformed(ActionEvent e) 
 	{
-		Game one = new Game(10,10);
-		System.out.print(one.getRows() + "x");
-		System.out.println(one.getColumns());
-		one.print();
+		
+		System.out.println("Pressed..");
+		
 	}
 
+	
+	public static void main(String[] args)
+	{
+		Game one = new Game(10,10); // creates a new board of size 10x10
+		
+	}
+
+	
 }
