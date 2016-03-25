@@ -84,13 +84,15 @@ public class Game implements ActionListener {
 	 */
 	private void setupCounter()
 	{
-		for(int i = 1; i<rows; i++) 
+		for(int i = 0; i<getRows(); i++) 
 		{
-			for(int j = 0; j<columns; j++)
+			for(int j = 0; j<getColumns(); j++)
 			{
 				counters[i][j] = j;
 				counters[i][j] = i;
-			}
+				System.out.print(counters[i][j] + " ");
+				}
+			System.out.println();
 		}
 	}
 	
@@ -120,7 +122,7 @@ public class Game implements ActionListener {
 	public void print()
 	{
 		
-		for(int i = 1; i<rows; i++)
+		for(int i = 0; i<rows; i++)
 		{
 			for(int j = 0; j<columns; j++)
 			{
@@ -170,7 +172,7 @@ public class Game implements ActionListener {
 	public void actionPerformed(ActionEvent e) 
 	{
 		
-	int i = 1;
+	int i = 0;
 	for(int j = 0; j<buttons.length; j++)
 		{
 		if(buttons[j] == e.getSource())
@@ -179,12 +181,12 @@ public class Game implements ActionListener {
 			try{ // handles when the row reaches the very last index 
 				if(currentPlayer == 1)
 				{
-				board[rows - counters[i][j]][j].setBackground(Color.BLACK);
-				counters[i][j]++;
+				board[(rows-1) - counters[i][j]][j].setBackground(Color.BLACK);
+				counters[i][j]++; 
 				}
 				
 				else{
-					board[rows-counters[i][j]][j].setBackground(Color.RED);
+					board[(rows-1) - counters[i][j]][j].setBackground(Color.RED);
 					counters[i][j]++;
 				}
 				switchPlayer();
@@ -206,7 +208,8 @@ public class Game implements ActionListener {
 	
 	public static void main(String[] args)
 	{
-		Game one = new Game(12,12);
+		Game one = new Game(12,4);
+		//one.print();
 	}
 	
 	
