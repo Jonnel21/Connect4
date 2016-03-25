@@ -5,10 +5,11 @@ import javax.swing.*;
 
 public class Game implements ActionListener {
 
-	private JButton[][] board = new JButton[0][0];
-	private JButton[] buttons;
-	private int[][] counters;
-	private int rows;
+	private JButton[][] board; // creates a board of disabled buttons to serve as the board
+	private JButton[] buttons; // creates buttons that can be clicked to add the game pieces
+	private int[][] counters; // each column gets a counter to keep track of the game pieces
+	private int currentPlayer; // allows to switch between the players
+	private int rows; 
 	private int columns;
 	
 	public Game()
@@ -26,9 +27,10 @@ public class Game implements ActionListener {
 	{
 		this.rows = rows;
 		this.columns = columns;
-		buttons = new JButton[this.columns];
-		board = new JButton[this.rows][this.columns];
-		counters = new int[this.rows][this.columns];
+		this.buttons = new JButton[this.columns];
+		this.board = new JButton[this.rows][this.columns];
+		this.counters = new int[this.rows][this.columns];
+		this.currentPlayer = 1;
 		
 		setupBoard();
 	}
@@ -40,13 +42,12 @@ public class Game implements ActionListener {
 	private void setupBoard()
 	{
 		JFrame frame = new JFrame();
-		JPanel panel = new JPanel(new GridLayout(this.rows +1, this.columns));
+		JPanel panel = new JPanel(new GridLayout(rows + 1, columns));
 		
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(500,500);
+		frame.setPreferredSize(new Dimension(500,500));
 		frame.add(panel); // adds the JPanel to the JFrame
-		panel.setSize(500,500);
 		
 		for(int j = 0; j<columns; j++) // sets up the buttons that will be enabled to be clicked 
 		{
@@ -55,10 +56,9 @@ public class Game implements ActionListener {
 			panel.add(buttons[j]);
 			buttons[j].setEnabled(true);
 			buttons[j].addActionListener(this); // adds action listener to the enabled buttons
-			
 		}
 		
-		for(int i = 0; i<rows; i++) // sets up the buttons of the board that is disabled
+		for(int i = 0; i<rows; i++) // sets up the buttons of the board that consists of disabled buttons
 		{						
 			for(int j = 0; j<columns; j++)
 			{
@@ -66,7 +66,6 @@ public class Game implements ActionListener {
 				button.setEnabled(false);
 				board[i][j] = button;
 				panel.add(board[i][j]);
-				
 			}	
 		}
 		
@@ -111,14 +110,28 @@ public class Game implements ActionListener {
 		}
 	}
 	
-	
-	public static void main(String[] args)
+	/**
+	 * private method to allow player 1 and player 2 to
+	 * switch and play turn by turn
+	 */
+	private void switchPlayer()
 	{
-		Game one = new Game(5,5); // creates a new board of size 10x10
-		one.print();
+		if(currentPlayer == 1)
+		{
+			currentPlayer = 0;
+		}
+		else
+		{
+			currentPlayer = 1;
+		}
 	}
 	
-	
+	/**
+	 * Gives action when one of the enabled buttons has
+	 * been pressed and drops down the pieces onto the board by setting 
+	 * the disabled button to either black or red
+	 * by default player 1 starts with the black piece
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
@@ -129,8 +142,17 @@ public class Game implements ActionListener {
 		if(buttons[j] == e.getSource())
 		{	if(i<buttons.length)
 			{
+				if(currentPlayer == 1)
+				{
 				board[rows - counters[i][j]][j].setBackground(Color.BLACK);
 				counters[i][j]++;
+				}
+				
+				else{
+					board[rows-counters[i][j]][j].setBackground(Color.RED);
+					counters[i][j]++;
+				}
+				switchPlayer();
 			}
 			
 		}
