@@ -190,27 +190,26 @@ public class Game implements ActionListener {
 					{
 					
 						board[rows - counters[i][j]][j].setBackground(Color.BLACK);
+						System.out.println((rows - counters[i][j]) + " , " + j);
+						checkDiagonal(rows - counters[i][j], j);
 						counters[i][j]++;
 						/**
 						checkVertical();
-						checkHorizontal();
-						checkDiagLeftToRight();
-						checkDiagLeftToRight2(); 
-						checkDiagRightToLeft(); */
-						checkDiagRightToLeft2();
+						checkHorizontal(); */
+						
 					}
 				
 					else{
 						
 						board[rows - counters[i][j]][j].setBackground(Color.RED);			
+						System.out.println((rows - counters[i][j]) + " , " + j);
+						checkDiagonal(rows - counters[i][j], j);
 						counters[i][j]++;
 						/**
 						checkVertical();
-						checkHorizontal();
-						checkDiagLeftToRight(); 
-						checkDiagLeftToRight2(); 
-						checkDiagRightToLeft(); */
-						checkDiagRightToLeft2();
+						checkHorizontal(); */
+						
+						
 					}
 					switchPlayer();
 				}
@@ -228,107 +227,89 @@ public class Game implements ActionListener {
 	
 	private void checkWinner()
 	{	
-		
+       		
 	}
-	
-	private void checkDiagonal()
-	{
-		
-		
-	}
-	
-	private void checkDiagLeftToRight()
-	{
-		 int redCount = 1;
-		 int blackCount = 1;
-		for (int i = rows - 1; i > 0; i--)
-		{
-			for(int k = i, j = 0; k > 0; k--, j++)
-			{
-				Color current = board[k][j].getBackground();
-				Color next = board[k - 1][j + 1].getBackground();
-				if ((current.equals(Color.RED)) && (current.equals(next)))
-				{	redCount++;	  }
-				else { redCount = 1; }
-				if ((current.equals(Color.BLACK)) && (current.equals(next)))
-				{	blackCount++;	}
-				else { blackCount = 1; }
-				if (redCount == winCount) {System.out.println("Player 2 Wins"); return;}
-				if (blackCount == winCount) {System.out.println("Player 1 Wins"); return;}
-			}
-		}
-		
-		
-	}
-	
-	private void checkDiagLeftToRight2()
+    
+	private void checkDiagonal(int row, int column)
 	{
 		int redCount = 1;
-		int blackCount = 1;
-		for (int i = 1; i < columns - 2; i++)
-		{
-			for(int k = i, j = rows - 1; k < columns - 1; k++, j--)
-			{
-				Color current = board[j][k].getBackground();
-				Color next = board[j - 1][k + 1].getBackground();
-				if ((current.equals(Color.RED)) && (current.equals(next)))
-				{	redCount++;	}
-				else { redCount = 1; }
-				if ((current.equals(Color.BLACK)) && (current.equals(next)))
-				{	blackCount++;	}
-				else { blackCount = 1; }
-				if (redCount == winCount) {System.out.println("Player 2 Wins"); return;}
-				if (blackCount == winCount) {System.out.println("Player 1 Wins"); return;}
-			}
-		}
-		
-		
+	    int blackCount = 1;
+	    int r = row;
+	    int c = column;
+	    int count = 1;
+	  
+	    	while(checkBounds(r - 1,c + 1))
+	    	{
+	    		Color current = board[r][c].getBackground();
+	    		Color next = board[r - 1][c + 1].getBackground();
+	    		if (current.equals(next) && !(current.equals(Color.WHITE)))
+	    			{	count++;	}
+	    		else { count = 1; }
+	    		if (count == winCount) 
+	    		{ 
+	    			if (current.equals(Color.RED)) {  System.out.println("Player 2 has won"); return; }
+	    			if (current.equals(Color.BLACK)) {  System.out.println("Player 1 has won"); return; }
+	    		}
+	    		r--; c++;	
+	    	}
+	    	
+	    	count = 1;
+	    	
+	    	while(checkBounds(r + 1, c - 1))
+	    	{
+	    		Color current = board[r][c].getBackground();
+	    		Color next = board[r + 1][c - 1].getBackground();
+	    		if (current.equals(next) && !(current.equals(Color.WHITE)))
+	    		{	count++;	}
+	    		else { count = 1; }
+	    		if (count == winCount) 
+	    		{ 
+	    			if (current.equals(Color.RED)) {  System.out.println("Player 2 has won"); return;  }
+	    			if (current.equals(Color.BLACK)) {  System.out.println("Player 1 has won"); return; }
+	    		}
+	    		r++; c--;
+	    	}
+	    	
+	    	count = 1;
+	    	
+	    	while(checkBounds(r + 1, c + 1))
+	    	{
+	    		Color current = board[r][c].getBackground();
+	    		Color next = board[r + 1][c + 1].getBackground();
+	    		if (current.equals(next) && !(current.equals(Color.WHITE)))
+	    		{	count++;	}
+	    		else { count = 1; }
+	    		if (count == winCount) 
+	    		{ 
+	    			if (current.equals(Color.RED)) {  System.out.println("Player 2 has won"); return;  }
+	    			if (current.equals(Color.BLACK)) {  System.out.println("Player 1 has won"); return; }
+	    		}
+	    		r++; c++;
+	    	}
+	    	
+	    	count = 1;
+	    	
+	    	while(checkBounds(r - 1, c - 1))
+	    	{
+	    		Color current = board[r][c].getBackground();
+	    		Color next = board[r - 1][c - 1].getBackground();
+	    		if (current.equals(next) && !(current.equals(Color.WHITE)))
+	    		{	count++;	}
+	    		else { count = 1; }
+	    		if (count == winCount) 
+	    		{ 
+	    			if (current.equals(Color.RED)) {  System.out.println("Player 2 has won"); return;  }
+	    			if (current.equals(Color.BLACK)) {  System.out.println("Player 1 has won"); return; }
+	    		}
+	    		r--; c--;
+	    	}
+	    	
 	}
 	
-	private void checkDiagRightToLeft()
+	private boolean checkBounds(int row, int column)
 	{
-		int redCount = 1;
-		int blackCount = 1;
-		for (int i = rows - 1; i > 0; i--)
-		{
-			for(int k = i, j = columns - 1; k > 0; k--, j--)
-			{
-				Color current = board[k][j].getBackground();
-				Color next = board[k - 1][j - 1].getBackground();
-				if ((current.equals(Color.RED)) && (current.equals(next)))
-				{	redCount++;	  }
-				else { redCount = 1; }
-				if ((current.equals(Color.BLACK)) && (current.equals(next)))
-				{	blackCount++;	}
-				else { blackCount = 1; }
-				if (redCount == winCount) {System.out.println("Player 2 Wins"); return;}
-				if (blackCount == winCount) {System.out.println("Player 1 Wins"); return;}
-			}
-		}
-	
-	}
-	
-	private void checkDiagRightToLeft2()
-	{
-		int redCount = 1;
-		int blackCount = 1;
-		for (int i = columns - 2; i > 0; i--)
-		{
-			for(int k = i, j = rows - 1; k > 0; k--, j--)
-			{
-				Color current = board[j][k].getBackground();
-				Color next = board[j - 1][k - 1].getBackground();
-				if ((current.equals(Color.RED)) && (current.equals(next)))
-				{	redCount++;	}
-				else { redCount = 1; }
-				if ((current.equals(Color.BLACK)) && (current.equals(next)))
-				{	blackCount++;	}
-				else { blackCount = 1; }
-				if (redCount == winCount) {System.out.println("Player 2 Wins"); return;}
-				if (blackCount == winCount) {System.out.println("Player 1 Wins"); return;}
-			}
-		}
-	
+		boolean inBounds = (row >= 0) && (row < rows) && (column >= 0) && (column < columns);
+		return inBounds;
 	}
 	
 	private void checkVertical()
@@ -391,7 +372,7 @@ public class Game implements ActionListener {
 	
 	public static void main(String args[])
 	{
-		Game g = new Game(9,7,4);
+		Game g = new Game(6,7,4);
 		
 	}
 	
