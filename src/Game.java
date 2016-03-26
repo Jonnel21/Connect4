@@ -1,3 +1,4 @@
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,10 +14,17 @@ public class Game implements ActionListener {
 	private int columns;
 	public static final int MAX_ROWS = 20; // max amount of rows allowed
 	public static final int MAX_COLUMNS = 20; // max amount of columns allowed
+	private int winCount;
 	
 	public Game()
 	{
-		
+		columns = 7;
+		rows = 6;
+		winCount = 4;
+		this.buttons = new JButton[columns];
+		this.board = new JButton[rows][columns];
+		this.counters = new int[rows][columns];
+		this.currentPlayer = 1;
 	}
 	
 	/**
@@ -25,11 +33,12 @@ public class Game implements ActionListener {
 	 * @param rows
 	 * @param columns
 	 */
-	public Game(int rows, int columns)
+	public Game(int rows, int columns,int winCount)
 	{
 		
 		this.rows = rows;
 		this.columns = columns;
+		this.winCount = winCount;
 		this.buttons = new JButton[columns];
 		this.board = new JButton[rows][columns];
 		this.counters = new int[rows][columns];
@@ -84,15 +93,13 @@ public class Game implements ActionListener {
 	 */
 	private void setupCounter()
 	{
-		for(int i = 0; i<getRows(); i++) 
+		for(int i = 1; i<rows; i++) 
 		{
-			for(int j = 0; j<getColumns(); j++)
+			for(int j = 0; j<columns; j++)
 			{
 				counters[i][j] = j;
 				counters[i][j] = i;
-				System.out.print(counters[i][j] + " ");
-				}
-			System.out.println();
+			}
 		}
 	}
 	
@@ -122,9 +129,9 @@ public class Game implements ActionListener {
 	public void print()
 	{
 		
-		for(int i = 0; i<rows; i++)
+		for(int i = 1; i < rows; i++)
 		{
-			for(int j = 0; j<columns; j++)
+			for(int j = 0; j < columns; j++)
 			{
 				System.out.print(counters[i][j] + " ");
 			}
@@ -172,45 +179,120 @@ public class Game implements ActionListener {
 	public void actionPerformed(ActionEvent e) 
 	{
 		
-	int i = 0;
-	for(int j = 0; j<buttons.length; j++)
+	int i = 1;
+	for(int j = 0; j < buttons.length; j++)
 		{
 		if(buttons[j] == e.getSource())
-		{	if(i<buttons.length)
-			{
-			try{ // handles when the row reaches the very last index 
-				if(currentPlayer == 1)
+			{	if(i < buttons.length)
 				{
-				board[(rows-1) - counters[i][j]][j].setBackground(Color.BLACK);
-				counters[i][j]++; 
-				}
+				try{ // handles when the row reaches the very last index 
+					if(currentPlayer == 1)
+					{
+					
+						board[rows - counters[i][j]][j].setBackground(Color.BLACK);
+						//System.out.println(board[rows - counters[i][j]][j].getBackground());
+						counters[i][j]++;
+						checkVertical();
+						checkHorizontal();
+					}
 				
-				else{
-					board[(rows-1) - counters[i][j]][j].setBackground(Color.RED);
-					counters[i][j]++;
+					else{
+						
+						board[rows - counters[i][j]][j].setBackground(Color.RED);
+						//System.out.println(board[rows - counters[i][j]][j].getBackground());
+						counters[i][j]++;
+						checkVertical();
+						checkHorizontal();
+					}
+					switchPlayer();
 				}
-				switchPlayer();
-			}
-			catch(ArrayIndexOutOfBoundsException a)
-			{
-				System.out.println("error not enough space in the grid");
-			}
+				catch(ArrayIndexOutOfBoundsException a)
+					{
+						System.out.println("error not enough space in the grid");
+					}
+				}
+			
 			}
 			
 		}
+	
+	}
+	
+	private void checkWinner()
+	{	
 		
-			
-		}
-	
-	
-	
 	}
 	
-	public static void main(String[] args)
+	private void checkDiagonal()
 	{
-		Game one = new Game(12,4);
-		//one.print();
+		
+		
 	}
+	
+	private void checkVertical()
+	{
+	    int redCount = 1;
+	    int blackCount = 1;
+		for (int i = rows - 1; i >= 0; i--)
+		{
+		
+			for (int j = 0; j < columns - 1; j++)
+			{
+				Color current = board[i][j].getBackground();
+				Color next = board[i][j + 1].getBackground();
+				if ((current.equals(Color.RED)) && (current.equals(next)))
+				{
+					redCount++;
+				}
+				else { redCount = 1; }
+				if ((current.equals(Color.BLACK)) && (current.equals(next)))
+				{
+					blackCount++;
+				}
+				else { blackCount = 1; }
+				if (redCount == winCount) {System.out.println("Player 2 Wins"); return;}
+				if (blackCount == winCount) {System.out.println("Player 1 Wins"); return;}
+			}
+		}
+		System.out.println("No Winner Yet");
+		
+	}
+	
+	private void checkHorizontal()
+	{
+	    int redCount = 1;
+	    int blackCount = 1;
+		for (int i = 0; i < columns; i++)
+		{
+			for (int j = rows - 1; j > 0; j--)
+			{
+				
+				Color current = board[j][i].getBackground();
+				Color next = board[j - 1][i].getBackground();
+				if ((current.equals(Color.RED)) && (current.equals(next)))
+				{
+					redCount++;
+				}
+				else { redCount = 1; }
+				if ((current.equals(Color.BLACK)) && (current.equals(next)))
+				{
+					blackCount++;
+				}
+				else { blackCount = 1; }
+				if (redCount == winCount) {System.out.println("Player 2 Wins"); return;}
+				if (blackCount == winCount) {System.out.println("Player 1 Wins"); return;}
+			}
+		}
+		System.out.println("No Winner Yet");
+		
+	}
+	
+	public static void main(String args[])
+	{
+		Game g = new Game(4,4,3);
+		
+	}
+	
 	
 	
 }
