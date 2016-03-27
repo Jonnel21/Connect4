@@ -12,8 +12,13 @@ public class Game implements ActionListener {
 	private int currentPlayer; // allows to switch between the players
 	private int rows; 
 	private int columns;
-	public static final int MAX_ROWS = 21; // max amount of rows allowed
-	public static final int MAX_COLUMNS = 21; // max amount of columns allowed
+	public static final int MAX_ROWS = 20; // max amount of rows allowed
+	public static final int MAX_COLUMNS = 20; // max amount of columns allowed
+	public static final int MAX_CONNECT = 19;
+	public static final int MIN_ROWS = 4;
+	public static final int MIN_COLUMNS = 4;
+	public static final int MIN_CONNECT = 3;
+	
 	private int winCount;
 	
 	public Game()
@@ -25,6 +30,8 @@ public class Game implements ActionListener {
 		this.board = new JButton[rows][columns];
 		this.counters = new int[rows][columns];
 		this.currentPlayer = 1;
+		
+		setupBoard();
 	}
 	
 	/**
@@ -162,10 +169,25 @@ public class Game implements ActionListener {
 	 */
 	private void addCap()
 	{
-		if(rows >= MAX_ROWS || columns >= MAX_COLUMNS)
+		if(rows > MAX_ROWS || columns > MAX_COLUMNS)
 		{
-			System.out.println("The number of rows and columns exceed the limit.");
+			System.out.println("The number of rows and/or columns exceed the limit.");
 			System.exit(0);
+		}
+		if(rows < MIN_ROWS || columns < MIN_COLUMNS)
+		{
+			System.out.println("The number of rows and/or columns are lower than the limit.");
+			System.exit(0);
+		}
+		if (winCount < MIN_CONNECT)  
+		{  
+			System.out.println("The Connect number is lower than the minimum limit.");
+		    System.exit(0); 
+		}
+		if (winCount > MAX_CONNECT || winCount >= Math.min(rows, columns))  
+		{  
+			System.out.println("The Connect number is greater than max or greater than or equal to rows/columns.");
+		    System.exit(0); 
 		}
 	}
 	
@@ -178,8 +200,9 @@ public class Game implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
-		
+	
 	int i = 1;
+	
 	for(int j = 0; j < buttons.length; j++)
 		{
 		if(buttons[j] == e.getSource())
@@ -188,27 +211,19 @@ public class Game implements ActionListener {
 				try{ // handles when the row reaches the very last index 
 					if(currentPlayer == 1)
 					{
-					
 						board[rows - counters[i][j]][j].setBackground(Color.BLACK);
 						System.out.println((rows - counters[i][j]) + " , " + j);
-						checkDiagonal(rows - counters[i][j], j);
+						if (checkWinner(rows - counters[i][j], j)) { return; }
 						counters[i][j]++;
-						/**
-						checkVertical();
-						checkHorizontal(); */
-						
+	
 					}
 				
 					else{
 						
 						board[rows - counters[i][j]][j].setBackground(Color.RED);			
 						System.out.println((rows - counters[i][j]) + " , " + j);
-						checkDiagonal(rows - counters[i][j], j);
+						if (checkWinner(rows - counters[i][j], j)) { return; }
 						counters[i][j]++;
-						/**
-						checkVertical();
-						checkHorizontal(); */
-						
 						
 					}
 					switchPlayer();
@@ -225,85 +240,149 @@ public class Game implements ActionListener {
 	
 	}
 	
-	private void checkWinner()
+	private boolean checkWinner(int row,int column)
 	{	
-       		
+		if (checkVertical() == true) { return true; }
+		else if (checkHorizontal() == true) { return true; }
+		else if (checkDiagonal(row, column) == true) { return true; } 
+		else { return false; }
+       	
 	}
     
-	private void checkDiagonal(int row, int column)
+	private boolean checkDiagonal(int row, int column)
 	{
-		int redCount = 1;
-	    int blackCount = 1;
 	    int r = row;
 	    int c = column;
 	    int count = 1;
-	  
-	    	while(checkBounds(r - 1,c + 1))
+	    Color current = board[r][c].getBackground();
+	    
+	    //System.out.println("first checkBounds is : " + checkBounds(r - 1, c + 1));
+	    if (checkBounds(r - 1, c + 1)) //Checking top Right Corner First
+	    {
+	    	while (checkBounds(r - 1, c + 1))
 	    	{
-	    		Color current = board[r][c].getBackground();
+	    		
 	    		Color next = board[r - 1][c + 1].getBackground();
-	    		if (current.equals(next) && !(current.equals(Color.WHITE)))
-	    			{	count++;	}
-	    		else { count = 1; }
-	    		if (count == winCount) 
-	    		{ 
-	    			if (current.equals(Color.RED)) {  System.out.println("Player 2 has won"); return; }
-	    			if (current.equals(Color.BLACK)) {  System.out.println("Player 1 has won"); return; }
+	    		if (current.equals(next) && !(next.equals(Color.WHITE)))
+	    		{	count++;    }
+	    		else { break; }
+	    		//System.out.println("Top Right Loop: " + count);
+	    		if (count == winCount)
+	    		{
+	    			if (current.equals(Color.RED)) {  System.out.println("Player 2 has won"); return true;  }
+	    			if (current.equals(Color.BLACK)) {  System.out.println("Player 1 has won"); return true; }
 	    		}
-	    		r--; c++;	
+	    		r--;  c++;
+	    	}
+	    	if (count < winCount)
+	    	{
+	    		int r2 = row;
+	    		int c2 = column;
+	    		//System.out.println("second checkBounds is : " + checkBounds(r2 + 1, c2 - 1));
+	    		while(checkBounds(r2 + 1, c2 - 1)) //Checking Bottom Left Corner if Top Right doesn't reach win
+		    	{
+		    		Color next = board[r2 + 1][c2 - 1].getBackground();
+		    		if (current.equals(next) && !(current.equals(Color.WHITE)))
+		    		{	count++;	}
+		    		else { count = 1; break; }
+		    		//System.out.println("Bottom Left Loop: " + count);
+		    		if (count == winCount) 
+		    		{ 
+		    			if (current.equals(Color.RED)) {  System.out.println("Player 2 has won"); return true;  }
+		    			if (current.equals(Color.BLACK)) {  System.out.println("Player 1 has won"); return true; }
+		    		}
+		    		r2++; c2--;
+		    	} 
 	    	}
 	    	
+	    }
+	    else 
+	    {  
 	    	count = 1;
-	    	
-	    	while(checkBounds(r + 1, c - 1))
+	    	int r3 = row;
+	    	int c3 = column;
+	    	//System.out.println("third checkBounds is : " + checkBounds(r3 + 1, c3 - 1));
+	    	while(checkBounds(r3 + 1, c3 - 1)) //Checking Bottom Left Corner if an edge case
 	    	{
-	    		Color current = board[r][c].getBackground();
-	    		Color next = board[r + 1][c - 1].getBackground();
+	    		Color next = board[r3 + 1][c3 - 1].getBackground();
 	    		if (current.equals(next) && !(current.equals(Color.WHITE)))
 	    		{	count++;	}
-	    		else { count = 1; }
+	    		else { count = 1; break; }
+	    		//System.out.println("Bottom Left Loop 2 : " + count);
 	    		if (count == winCount) 
 	    		{ 
-	    			if (current.equals(Color.RED)) {  System.out.println("Player 2 has won"); return;  }
-	    			if (current.equals(Color.BLACK)) {  System.out.println("Player 1 has won"); return; }
+	    			if (current.equals(Color.RED)) {  System.out.println("Player 2 has won"); return true;  }
+	    			if (current.equals(Color.BLACK)) {  System.out.println("Player 1 has won"); return true; }
 	    		}
-	    		r++; c--;
-	    	}
+	    		r3++; c3--;
+	    	} 
+	    }  
+	    
+	
+	    if (checkBounds(r - 1, c - 1)) //Checking top Left Corner First
+	    {
+	    	count = 1; 
+	 	    r = row;
+	 	    c = column;
 	    	
-	    	count = 1;
-	    	
-	    	while(checkBounds(r + 1, c + 1))
+	    	while (checkBounds(r - 1, c - 1))
 	    	{
-	    		Color current = board[r][c].getBackground();
-	    		Color next = board[r + 1][c + 1].getBackground();
-	    		if (current.equals(next) && !(current.equals(Color.WHITE)))
-	    		{	count++;	}
-	    		else { count = 1; }
-	    		if (count == winCount) 
-	    		{ 
-	    			if (current.equals(Color.RED)) {  System.out.println("Player 2 has won"); return;  }
-	    			if (current.equals(Color.BLACK)) {  System.out.println("Player 1 has won"); return; }
-	    		}
-	    		r++; c++;
-	    	}
-	    	
-	    	count = 1;
-	    	
-	    	while(checkBounds(r - 1, c - 1))
-	    	{
-	    		Color current = board[r][c].getBackground();
 	    		Color next = board[r - 1][c - 1].getBackground();
-	    		if (current.equals(next) && !(current.equals(Color.WHITE)))
-	    		{	count++;	}
-	    		else { count = 1; }
-	    		if (count == winCount) 
-	    		{ 
-	    			if (current.equals(Color.RED)) {  System.out.println("Player 2 has won"); return;  }
-	    			if (current.equals(Color.BLACK)) {  System.out.println("Player 1 has won"); return; }
+	    		if (current.equals(next) && !(next.equals(Color.WHITE)))
+	    		{	count++;    }
+	    		else { break; }
+	    		//System.out.println("top Left Loop: " + count);
+	    		if (count == winCount)
+	    		{
+	    			if (current.equals(Color.RED)) {  System.out.println("Player 2 has won"); return true;  }
+	    			if (current.equals(Color.BLACK)) {  System.out.println("Player 1 has won"); return true; }
 	    		}
-	    		r--; c--;
+	    		r--;  c--;
+	    	}
+	    	if (count < winCount)
+	    	{
+	    		int r2 = row;
+	    		int c2 = column;
+	    		while(checkBounds(r2 + 1, c2 + 1)) //Checking Bottom Right Corner if Top Left doesn't reach Win
+		    	{
+		    		Color next = board[r2 + 1][c2 + 1].getBackground();
+		    		if (current.equals(next) && !(current.equals(Color.WHITE)))
+		    		{	count++;	}
+		    		else { count = 1; break; }
+		    		//System.out.println("Bottom Right Loop: " + count);
+		    		if (count == winCount) 
+		    		{ 
+		    			if (current.equals(Color.RED)) {  System.out.println("Player 2 has won"); return true;  }
+		    			if (current.equals(Color.BLACK)) {  System.out.println("Player 1 has won"); return true; }
+		    		}
+		    		r2++; c2++;
+		    	} 
 	    	}
 	    	
+	    }
+	    else 
+	    {  
+	    	count = 1;
+	    	int r3 = row;
+    		int c3 = column;
+	    	while(checkBounds(r3 + 1, c3 + 1)) //Checking Bottom Right Corner if an edge case
+	    	{
+	    		Color next = board[r3 + 1][c3 + 1].getBackground();
+	    		if (current.equals(next) && !(current.equals(Color.WHITE)))
+	    		{	count++;	}
+	    		else { count = 1; break; }
+	    		//System.out.println("Bottom Right Loop 2 : " + count);
+	    		if (count == winCount) 
+	    		{ 
+	    			if (current.equals(Color.RED)) {  System.out.println("Player 2 has won"); return true;  }
+	    			if (current.equals(Color.BLACK)) {  System.out.println("Player 1 has won"); return true; }
+	    		}
+	    		r3++; c3++;
+	    	}
+	    }
+	    return false;
+	   
+	   
 	}
 	
 	private boolean checkBounds(int row, int column)
@@ -312,7 +391,7 @@ public class Game implements ActionListener {
 		return inBounds;
 	}
 	
-	private void checkVertical()
+	private boolean checkVertical()
 	{
 	    int redCount = 1;
 	    int blackCount = 1;
@@ -333,15 +412,16 @@ public class Game implements ActionListener {
 					blackCount++;
 				}
 				else { blackCount = 1; }
-				if (redCount == winCount) {System.out.println("Player 2 Wins"); return;}
-				if (blackCount == winCount) {System.out.println("Player 1 Wins"); return;}
+				if (redCount == winCount) {System.out.println("Player 2 Wins"); return true;}
+				if (blackCount == winCount) {System.out.println("Player 1 Wins"); return true; }
 			}
 		}
+		return false;
 	
 		
 	}
 	
-	private void checkHorizontal()
+	private boolean checkHorizontal()
 	{
 	    int redCount = 1;
 	    int blackCount = 1;
@@ -362,10 +442,11 @@ public class Game implements ActionListener {
 					blackCount++;
 				}
 				else { blackCount = 1; }
-				if (redCount == winCount) {System.out.println("Player 2 Wins"); return;}
-				if (blackCount == winCount) {System.out.println("Player 1 Wins"); return;}
+				if (redCount == winCount) {System.out.println("Player 2 Wins"); return true;}
+				if (blackCount == winCount) {System.out.println("Player 1 Wins"); return true; }
 			}
 		}
+		return false;
 	
 		
 	}
@@ -375,7 +456,5 @@ public class Game implements ActionListener {
 		Game g = new Game(6,7,4);
 		
 	}
-	
-	
 	
 }
