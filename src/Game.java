@@ -9,27 +9,48 @@ public class Game implements ActionListener {
 	private JButton[] buttons; // creates buttons that can be clicked to add the game pieces
 	private int[][] counters; // each column gets a counter to keep track of the game pieces
 	private int currentPlayer; // allows to switch between the players
+	private JFrame frame;  // instantiates the frame
 	private int rows; 
 	private int columns;
 	public static final int MAX_ROWS = 20; // max amount of rows allowed
 	public static final int MAX_COLUMNS = 20; // max amount of columns allowed
+	public static final int MAX_CONNECT = 19; //max amount of pieces to be lined up horizontally, vertically, and diagonally
+	public static final int MIN_ROWS = 4; // min amount of rows allowed
+	public static final int MIN_COLUMNS = 4; // min amount of columns allowed
+	public static final int MIN_CONNECT = 3; // min amount of pieces to be lined up horizontally, vertically, and diagonally
 	
+	private int winCount; // a counter to determine the winner 
+	
+	/**
+	 * creates a default game of connect 4
+	 */
 	public Game()
 	{
+		columns = 7;
+		rows = 6;
+		winCount = 4;
+		this.frame = new JFrame("Connect 4");
+		this.buttons = new JButton[columns];
+		this.board = new JButton[rows][columns];
+		this.counters = new int[rows][columns];
+		this.currentPlayer = 1;
 		
+		setupBoard();
 	}
 	
 	/**
-	 * creates a board with a number
-	 * of rows and columns
+	 * creates a game connect 4 with a number
+	 * of rows and columns and the number of pieces to win by
 	 * @param rows
 	 * @param columns
+	 * @param winCount
 	 */
-	public Game(int rows, int columns)
+	public Game(int rows, int columns,int winCount)
 	{
-		
+		this.frame = new JFrame("Connect 4");
 		this.rows = rows;
 		this.columns = columns;
+		this.winCount = winCount;
 		this.buttons = new JButton[columns];
 		this.board = new JButton[rows][columns];
 		this.counters = new int[rows][columns];
@@ -45,12 +66,12 @@ public class Game implements ActionListener {
 	 */
 	private void setupBoard()
 	{
-		JFrame frame = new JFrame("Connect 4");
+		ImageIcon img = new ImageIcon("pic.png");
 		JPanel panel = new JPanel(new GridLayout(rows + 1, columns));
-		
-		frame.setVisible(true);
+		frame.setIconImage(img.getImage());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setPreferredSize(new Dimension(500,500));
+		frame.setVisible(true);
 		frame.add(panel); // adds the JPanel to the JFrame
 		
 		for(int j = 0; j<columns; j++) // sets up the buttons that will be enabled to be clicked 
@@ -74,6 +95,7 @@ public class Game implements ActionListener {
 		
 		setupCounter();
 		frame.pack();
+		frame.setLocationRelativeTo(null); // centers the board
 	}
 	
 	/**
@@ -84,15 +106,13 @@ public class Game implements ActionListener {
 	 */
 	private void setupCounter()
 	{
-		for(int i = 0; i<getRows(); i++) 
+		for(int i = 1; i<rows; i++) 
 		{
-			for(int j = 0; j<getColumns(); j++)
+			for(int j = 0; j<columns; j++)
 			{
 				counters[i][j] = j;
 				counters[i][j] = i;
-				System.out.print(counters[i][j] + " ");
-				}
-			System.out.println();
+			}
 		}
 	}
 	
@@ -122,9 +142,9 @@ public class Game implements ActionListener {
 	public void print()
 	{
 		
-		for(int i = 0; i<rows; i++)
+		for(int i = 1; i < rows; i++)
 		{
-			for(int j = 0; j<columns; j++)
+			for(int j = 0; j < columns; j++)
 			{
 				System.out.print(counters[i][j] + " ");
 			}
@@ -150,15 +170,30 @@ public class Game implements ActionListener {
 	
 	/**
 	 * private method to add a limit to how
-	 * big the board can get.  System will exit if 
-	 * the numbers exceed that limit
+	 * big the board can get, and how many pieces in order to win.  System will exit if 
+	 * the numbers exceed that limit or doesn't reach at least the minimum
 	 */
 	private void addCap()
 	{
-		if(rows >= MAX_ROWS || columns >= MAX_COLUMNS)
+		if(rows > MAX_ROWS || columns > MAX_COLUMNS)
 		{
-			System.out.println("The number of rows and columns exceed the limit.");
+			System.out.println("The number of rows and/or columns exceed the limit.");
 			System.exit(0);
+		}
+		if(rows < MIN_ROWS || columns < MIN_COLUMNS)
+		{
+			System.out.println("The number of rows and/or columns are lower than the limit.");
+			System.exit(0);
+		}
+		if (winCount < MIN_CONNECT)  
+		{  
+			System.out.println("The Connect number is lower than the minimum limit.");
+		    System.exit(0); 
+		}
+		if (winCount > MAX_CONNECT || winCount >= Math.min(rows, columns))  
+		{  
+			System.out.println("The Connect number is greater than max or greater than or equal to rows/columns.");
+		    System.exit(0); 
 		}
 	}
 	
@@ -171,45 +206,318 @@ public class Game implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
-		
-	int i = 0;
-	for(int j = 0; j<buttons.length; j++)
+	
+	int i = 1;
+	
+	for(int j = 0; j < buttons.length; j++)
 		{
 		if(buttons[j] == e.getSource())
-		{	if(i<buttons.length)
-			{
-			try{ // handles when the row reaches the very last index 
-				if(currentPlayer == 1)
+			{	if(i < buttons.length)
 				{
-				board[(rows-1) - counters[i][j]][j].setBackground(Color.BLACK);
-				counters[i][j]++; 
-				}
+				try{ // handles when the row reaches the very last index 
+					if(currentPlayer == 1)
+					{
+						board[rows - counters[i][j]][j].setBackground(Color.BLACK);
+						//System.out.println((rows - counters[i][j]) + " , " + j);
+						if (checkWinner(rows - counters[i][j], j)) { return; }
+						counters[i][j]++;
+	
+					}
 				
-				else{
-					board[(rows-1) - counters[i][j]][j].setBackground(Color.RED);
-					counters[i][j]++;
+					else{
+						
+						board[rows - counters[i][j]][j].setBackground(Color.RED);			
+						//System.out.println((rows - counters[i][j]) + " , " + j);
+						if (checkWinner(rows - counters[i][j], j)) { return; }
+						counters[i][j]++;
+						
+					}
+					switchPlayer();
 				}
-				switchPlayer();
-			}
-			catch(ArrayIndexOutOfBoundsException a)
-			{
-				System.out.println("error not enough space in the grid");
-			}
+				catch(ArrayIndexOutOfBoundsException a)
+					{
+						System.out.println("error not enough space in the grid");
+					}
+				}
+			
 			}
 			
 		}
-		
-			
-		}
-	
-	
 	
 	}
 	
-	public static void main(String[] args)
+	/**
+	 * checks to see if there is a winner returns true or false
+	 * @param row
+	 * @param column
+	 * @return
+	 */
+	private boolean checkWinner(int row,int column)
+	{	
+		if (checkVertical() == true) { return true; }
+		else if (checkHorizontal() == true) { return true; }
+		else if (checkDiagonal(row, column) == true) { return true; } 
+		else { return false; }
+       	
+	}
+    
+	/**
+	 * checks to see if there is a winner at all possible
+	 * diagonal combinations
+	 * @param row
+	 * @param column
+	 * @return
+	 */
+	private boolean checkDiagonal(int row, int column)
 	{
-		Game one = new Game(12,4);
-		//one.print();
+	    int r = row;
+	    int c = column;
+	    int count = 1;
+	    Color current = board[r][c].getBackground();
+	    
+	    //System.out.println("first checkBounds is : " + checkBounds(r - 1, c + 1));
+	    if (checkBounds(r - 1, c + 1)) //Checking top Right Corner First
+	    {
+	    	while (checkBounds(r - 1, c + 1))
+	    	{
+	    		
+	    		Color next = board[r - 1][c + 1].getBackground();
+	    		if (current.equals(next) && !(next.equals(Color.WHITE)))
+	    		{	count++;    }
+	    		else { break; }
+	    		//System.out.println("Top Right Loop: " + count);
+	    		if (count == winCount)
+	    		{
+	    			if (current.equals(Color.RED)) {displayPlayer2(); return true;  }
+	    			if (current.equals(Color.BLACK)) {displayPlayer1(); return true; }
+	    		}
+	    		r--;  c++;
+	    	}
+	    	if (count < winCount)
+	    	{
+	    		int r2 = row;
+	    		int c2 = column;
+	    		//System.out.println("second checkBounds is : " + checkBounds(r2 + 1, c2 - 1));
+	    		while(checkBounds(r2 + 1, c2 - 1)) //Checking Bottom Left Corner if Top Right doesn't reach win
+		    	{
+		    		Color next = board[r2 + 1][c2 - 1].getBackground();
+		    		if (current.equals(next) && !(current.equals(Color.WHITE)))
+		    		{	count++;	}
+		    		else { count = 1; break; }
+		    		//System.out.println("Bottom Left Loop: " + count);
+		    		if (count == winCount) 
+		    		{ 
+		    			if (current.equals(Color.RED)) {displayPlayer2(); return true;  }
+		    			if (current.equals(Color.BLACK)) {displayPlayer1(); return true; }
+		    		}
+		    		r2++; c2--;
+		    	} 
+	    	}
+	    	
+	    }
+	    else 
+	    {  
+	    	count = 1;
+	    	int r3 = row;
+	    	int c3 = column;
+	    	//System.out.println("third checkBounds is : " + checkBounds(r3 + 1, c3 - 1));
+	    	while(checkBounds(r3 + 1, c3 - 1)) //Checking Bottom Left Corner if an edge case
+	    	{
+	    		Color next = board[r3 + 1][c3 - 1].getBackground();
+	    		if (current.equals(next) && !(current.equals(Color.WHITE)))
+	    		{	count++;	}
+	    		else { count = 1; break; }
+	    		//System.out.println("Bottom Left Loop 2 : " + count);
+	    		if (count == winCount) 
+	    		{ 
+	    			if (current.equals(Color.RED)) {displayPlayer2(); return true;  }
+	    			if (current.equals(Color.BLACK)) {displayPlayer1(); return true; }
+	    		}
+	    		r3++; c3--;
+	    	} 
+	    }  
+	    
+	
+	    if (checkBounds(r - 1, c - 1)) //Checking top Left Corner First
+	    {
+	    	count = 1; 
+	 	    r = row;
+	 	    c = column;
+	    	
+	    	while (checkBounds(r - 1, c - 1))
+	    	{
+	    		Color next = board[r - 1][c - 1].getBackground();
+	    		if (current.equals(next) && !(next.equals(Color.WHITE)))
+	    		{	count++;    }
+	    		else { break; }
+	    		//System.out.println("top Left Loop: " + count);
+	    		if (count == winCount)
+	    		{
+	    			if (current.equals(Color.RED)) {displayPlayer2(); return true;  }
+	    			if (current.equals(Color.BLACK)) {displayPlayer1(); return true; }
+	    		}
+	    		r--;  c--;
+	    	}
+	    	if (count < winCount)
+	    	{
+	    		int r2 = row;
+	    		int c2 = column;
+	    		while(checkBounds(r2 + 1, c2 + 1)) //Checking Bottom Right Corner if Top Left doesn't reach Win
+		    	{
+		    		Color next = board[r2 + 1][c2 + 1].getBackground();
+		    		if (current.equals(next) && !(current.equals(Color.WHITE)))
+		    		{	count++;	}
+		    		else { count = 1; break; }
+		    		//System.out.println("Bottom Right Loop: " + count);
+		    		if (count == winCount) 
+		    		{ 
+		    			if (current.equals(Color.RED)) {displayPlayer2(); return true;  }
+		    			if (current.equals(Color.BLACK)) {displayPlayer1(); return true; }
+		    		}
+		    		r2++; c2++;
+		    	} 
+	    	}
+	    	
+	    }
+	    else 
+	    {  
+	    	count = 1;
+	    	int r3 = row;
+    		int c3 = column;
+	    	while(checkBounds(r3 + 1, c3 + 1)) //Checking Bottom Right Corner if an edge case
+	    	{
+	    		Color next = board[r3 + 1][c3 + 1].getBackground();
+	    		if (current.equals(next) && !(current.equals(Color.WHITE)))
+	    		{	count++;	}
+	    		else { count = 1; break; }
+	    		//System.out.println("Bottom Right Loop 2 : " + count);
+	    		if (count == winCount) 
+	    		{ 
+	    			if (current.equals(Color.RED)) {displayPlayer2(); return true;  }
+	    			if (current.equals(Color.BLACK)) {displayPlayer1(); return true; }
+	    		}
+	    		r3++; c3++;
+	    	}
+	    }
+	    return false;
+	   
+	   
+	}
+	
+	/**
+	 * checks to see if the parameters of in the bounds of the board
+	 * @param row
+	 * @param column
+	 * @return
+	 */
+	private boolean checkBounds(int row, int column)
+	{
+		boolean inBounds = (row >= 0) && (row < rows) && (column >= 0) && (column < columns);
+		return inBounds;
+	}
+	
+	/**
+	 * checks a winner at ever vertical
+	 * position
+	 * @return
+	 */
+	private boolean checkVertical()
+	{
+	    int redCount = 1;
+	    int blackCount = 1;
+		for (int i = rows - 1; i >= 0; i--)
+		{
+		
+			for (int j = 0; j < columns - 1; j++)
+			{
+				Color current = board[i][j].getBackground();
+				Color next = board[i][j + 1].getBackground();
+				if ((current.equals(Color.RED)) && (current.equals(next)))
+				{
+					redCount++;
+				}
+				else { redCount = 1; }
+				if ((current.equals(Color.BLACK)) && (current.equals(next)))
+				{
+					blackCount++;
+				}
+				else { blackCount = 1; }
+				if (redCount == winCount) {displayPlayer2(); return true;}
+				if (blackCount == winCount) {displayPlayer1(); return true; }
+			}
+		}
+		return false;
+	
+		
+	}
+	
+	/**
+	 * checks to see if there is a winner
+	 * at every horizontal line
+	 * @return
+	 */
+	private boolean checkHorizontal()
+	{
+	    int redCount = 1;
+	    int blackCount = 1;
+		for (int i = 0; i < columns; i++)
+		{
+			for (int j = rows - 1; j > 0; j--)
+			{
+				
+				Color current = board[j][i].getBackground();
+				Color next = board[j - 1][i].getBackground();
+				if ((current.equals(Color.RED)) && (current.equals(next)))
+				{
+					redCount++;
+				}
+				else { redCount = 1; }
+				if ((current.equals(Color.BLACK)) && (current.equals(next)))
+				{
+					blackCount++;
+				}
+				else { blackCount = 1; }
+				if (redCount == winCount) {displayPlayer2(); return true;}
+				if (blackCount == winCount) {displayPlayer1(); return true; }
+			}
+		}
+		return false;
+	
+		
+	}
+	
+	/**
+	 * creates a dialog that when certain
+	 * when a player 1 wins it will display
+	 * a message and option for rematch
+	 */
+	private void displayPlayer1()
+	{
+		JOptionPane.showMessageDialog(frame, "Player 1 Wins!");
+		int res = JOptionPane.showConfirmDialog(frame, "Rematch?", "Connect 4", JOptionPane.YES_NO_OPTION);
+		if(res == 0)
+		{
+			frame.dispose();
+			Game g = new Game(rows, columns, winCount);
+		}
+		else{System.exit(0);}
+	}
+	
+	/**
+	 * creates a dialog that when certain
+	 * when a player 2 wins it will display
+	 * a message and option for rematch
+	 */
+	private void displayPlayer2()
+	{
+		JOptionPane.showMessageDialog(frame, "Player 2 Wins!");
+		int res = JOptionPane.showConfirmDialog(frame, "Rematch?", "Connect 4", JOptionPane.YES_NO_OPTION);
+		if(res == 0)
+		{
+			frame.dispose();
+			Game g = new Game(rows, columns, winCount);
+		}
+		else{System.exit(0);}
 	}
 	
 	
