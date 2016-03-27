@@ -12,6 +12,7 @@ public class Game implements ActionListener {
 	private JFrame frame;  // instantiates the frame
 	private int rows; 
 	private int columns;
+	private int res; // counter to hold the variable across the call to show columns are filled
 	public static final int MAX_ROWS = 20; // max amount of rows allowed
 	public static final int MAX_COLUMNS = 20; // max amount of columns allowed
 	public static final int MAX_CONNECT = 19; //max amount of pieces to be lined up horizontally, vertically, and diagonally
@@ -20,15 +21,16 @@ public class Game implements ActionListener {
 	public static final int MIN_CONNECT = 3; // min amount of pieces to be lined up horizontally, vertically, and diagonally
 	
 	private int winCount; // a counter to determine the winner 
-	
+	private int boardSize;
+	private int numToWin;
 	/**
 	 * creates a default game of connect 4
 	 */
 	public Game()
 	{
-		columns = 7;
-		rows = 6;
-		winCount = 4;
+		this.columns = 6;
+		this.rows = 7;
+		this.winCount = 4;
 		this.frame = new JFrame("Connect 4");
 		this.buttons = new JButton[columns];
 		this.board = new JButton[rows][columns];
@@ -36,6 +38,29 @@ public class Game implements ActionListener {
 		this.currentPlayer = 1;
 		
 		setupBoard();
+	}
+	
+	/**
+	 * creates a game of connect 4 through command line
+	 * @param int boardSize
+	 * @param int winCount
+	 */
+	public Game(int boardSize, int winCount)
+	{
+		this.frame = new JFrame("Connect 4");
+		this.boardSize = boardSize;
+		this.winCount = winCount;
+		this.rows = boardSize;
+		this.columns = boardSize;
+		this.buttons = new JButton[boardSize];
+		this.board = new JButton[boardSize][boardSize];
+		this.counters = new int[boardSize][boardSize];
+		this.currentPlayer = 1;
+		
+		addCap();
+		setupBoard();
+		
+		
 	}
 	
 	/**
@@ -87,10 +112,11 @@ public class Game implements ActionListener {
 			for(int j = 0; j<columns; j++)
 			{
 				JButton button = new JButton();
+				
 				button.setEnabled(false);
 				board[i][j] = button;
 				panel.add(board[i][j]);
-			}	
+			}
 		}
 		
 		setupCounter();
@@ -106,7 +132,7 @@ public class Game implements ActionListener {
 	 */
 	private void setupCounter()
 	{
-		for(int i = 1; i<rows; i++) 
+		for(int i = 0; i<rows; i++) 
 		{
 			for(int j = 0; j<columns; j++)
 			{
@@ -142,7 +168,7 @@ public class Game implements ActionListener {
 	public void print()
 	{
 		
-		for(int i = 1; i < rows; i++)
+		for(int i = 0; i < rows; i++)
 		{
 			for(int j = 0; j < columns; j++)
 			{
@@ -206,46 +232,49 @@ public class Game implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
-	
-	int i = 1;
-	
-	for(int j = 0; j < buttons.length; j++)
+		int i = 0;
+		for(int j = 0; j < buttons.length; j++)
 		{
-		if(buttons[j] == e.getSource())
+			if(buttons[j] == e.getSource())
 			{	if(i < buttons.length)
 				{
 				try{ // handles when the row reaches the very last index 
 					if(currentPlayer == 1)
 					{
-						board[rows - counters[i][j]][j].setBackground(Color.BLACK);
-						//System.out.println((rows - counters[i][j]) + " , " + j);
-						if (checkWinner(rows - counters[i][j], j)) { return; }
+						board[(rows-1) - counters[i][j]][j].setBackground(Color.BLACK);
+						if (checkWinner(rows-1 - counters[i][j], j)) { return; }
+						if(counters[i][j] == columns-1) // if block to check if there is a draw or tie
+						{
+							res =  (columns)-1 +res;
+							if(res == (columns-1) * columns){displayDraw();}
+						}
+						
 						counters[i][j]++;
-	
-					}
+						}
 				
 					else{
 						
-						board[rows - counters[i][j]][j].setBackground(Color.RED);			
-						//System.out.println((rows - counters[i][j]) + " , " + j);
-						if (checkWinner(rows - counters[i][j], j)) { return; }
-						counters[i][j]++;
+						board[(rows-1) - counters[i][j]][j].setBackground(Color.RED);
+						if (checkWinner(rows-1 - counters[i][j], j)) { return; }
+						if(counters[i][j] == columns-1) // if block to check if there is a draw or tie
+						{
+							res =  (columns)-1 +res;
+							if(res == (columns-1)*columns){displayDraw();}
+						}
 						
-					}
+						counters[i][j]++;
+						}
 					switchPlayer();
-				}
+					}
 				catch(ArrayIndexOutOfBoundsException a)
 					{
 						System.out.println("error not enough space in the grid");
 					}
 				}
 			
-			}
-			
+}
 		}
-	
 	}
-	
 	/**
 	 * checks to see if there is a winner returns true or false
 	 * @param row
@@ -520,5 +549,20 @@ public class Game implements ActionListener {
 		else{System.exit(0);}
 	}
 	
-	
+	/**
+	 * creates a dialog that when certain
+	 * when no player wins it will display
+	 * a message and option for rematch
+	 */
+	private void displayDraw()
+	{
+		JOptionPane.showMessageDialog(frame, "Draw!");
+		int res = JOptionPane.showConfirmDialog(frame, "Rematch?", "Connect 4", JOptionPane.YES_NO_OPTION);
+		if(res == 0)
+		{
+			frame.dispose();
+			Game g = new Game(rows, columns, winCount);
+		}
+		else{System.exit(0);}
+	}
 }
