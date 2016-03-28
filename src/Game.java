@@ -1,6 +1,10 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.net.URL;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class Game implements ActionListener {
@@ -13,6 +17,10 @@ public class Game implements ActionListener {
 	private int rows; 
 	private int columns;
 	private int res; // counter to hold the variable across the call to show columns are filled
+	private int winCount; // a counter to determine the winner 
+	private int boardSize;
+	private int numToWin;
+	
 	public static final int MAX_ROWS = 20; // max amount of rows allowed
 	public static final int MAX_COLUMNS = 20; // max amount of columns allowed
 	public static final int MAX_CONNECT = 19; //max amount of pieces to be lined up horizontally, vertically, and diagonally
@@ -20,9 +28,6 @@ public class Game implements ActionListener {
 	public static final int MIN_COLUMNS = 4; // min amount of columns allowed
 	public static final int MIN_CONNECT = 3; // min amount of pieces to be lined up horizontally, vertically, and diagonally
 	
-	private int winCount; // a counter to determine the winner 
-	private int boardSize;
-	private int numToWin;
 	/**
 	 * creates a default game of connect 4
 	 */
@@ -59,8 +64,6 @@ public class Game implements ActionListener {
 		
 		addCap();
 		setupBoard();
-		
-		
 	}
 	
 	/**
@@ -70,7 +73,7 @@ public class Game implements ActionListener {
 	 * @param columns
 	 * @param winCount
 	 */
-	public Game(int rows, int columns,int winCount)
+	public Game(int rows, int columns, int winCount)
 	{
 		this.frame = new JFrame("Connect 4");
 		this.rows = rows;
@@ -91,7 +94,7 @@ public class Game implements ActionListener {
 	 */
 	private void setupBoard()
 	{
-		ImageIcon img = new ImageIcon("pic.png");
+		ImageIcon img = new ImageIcon(getClass().getResource("pic.png"));
 		JPanel panel = new JPanel(new GridLayout(rows + 1, columns));
 		frame.setIconImage(img.getImage());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
