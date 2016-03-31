@@ -7,9 +7,9 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
-public class Game implements ActionListener {
+public class Game extends MyButton implements ActionListener {
 
-	private JButton[][] board; // creates a board of disabled buttons to serve as the board
+	private MyButton[][] board; // creates a board of disabled buttons to serve as the board
 	private JButton[] buttons; // creates buttons that can be clicked to add the game pieces
 	private int[][] counters; // each column gets a counter to keep track of the game pieces
 	private int currentPlayer; // allows to switch between the players
@@ -19,7 +19,6 @@ public class Game implements ActionListener {
 	private int res; // counter to hold the variable across the call to show columns are filled
 	private int winCount; // a counter to determine the winner 
 	private int boardSize;
-	private int numToWin;
 	
 	public static final int MAX_ROWS = 20; // max amount of rows allowed
 	public static final int MAX_COLUMNS = 20; // max amount of columns allowed
@@ -38,7 +37,7 @@ public class Game implements ActionListener {
 		this.winCount = 4;
 		this.frame = new JFrame("Connect 4");
 		this.buttons = new JButton[columns];
-		this.board = new JButton[rows][columns];
+		this.board = new MyButton[rows][columns];
 		this.counters = new int[rows][columns];
 		this.currentPlayer = 1;
 		
@@ -57,8 +56,8 @@ public class Game implements ActionListener {
 		this.winCount = winCount;
 		this.rows = boardSize;
 		this.columns = boardSize;
-		this.buttons = new JButton[boardSize];
-		this.board = new JButton[boardSize][boardSize];
+		this.buttons = new MyButton[boardSize];
+		this.board = new MyButton[boardSize][boardSize];
 		this.counters = new int[boardSize][boardSize];
 		this.currentPlayer = 1;
 		
@@ -80,7 +79,7 @@ public class Game implements ActionListener {
 		this.columns = columns;
 		this.winCount = winCount;
 		this.buttons = new JButton[columns];
-		this.board = new JButton[rows][columns];
+		this.board = new MyButton[rows][columns];
 		this.counters = new int[rows][columns];
 		this.currentPlayer = 1;
 		
@@ -96,6 +95,7 @@ public class Game implements ActionListener {
 	{
 		ImageIcon img = new ImageIcon(getClass().getResource("pic.png"));
 		JPanel panel = new JPanel(new GridLayout(rows + 1, columns));
+		//panel.setBackground(Color.BLUE);
 		frame.setIconImage(img.getImage());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setPreferredSize(new Dimension(500,500));
@@ -114,8 +114,9 @@ public class Game implements ActionListener {
 		{						
 			for(int j = 0; j<columns; j++)
 			{
-				JButton button = new JButton();
-				
+				MyButton button = new MyButton();
+				button.setBorderPainted(false);
+				button.setBackground(Color.BLUE);
 				button.setEnabled(false);
 				board[i][j] = button;
 				panel.add(board[i][j]);
@@ -244,7 +245,8 @@ public class Game implements ActionListener {
 				try{ // handles when the row reaches the very last index 
 					if(currentPlayer == 1)
 					{
-						board[(rows-1) - counters[i][j]][j].setBackground(Color.BLACK);
+						board[(rows-1) - counters[i][j]][j].setColor(Color.BLACK);
+						//board[(rows-1) - counters[i][j]][j].repaint();
 						if (checkWinner(rows-1 - counters[i][j], j)) { return; }
 						if(counters[i][j] == columns-1) // if block to check if there is a draw or tie
 						{
@@ -257,7 +259,7 @@ public class Game implements ActionListener {
 				
 					else{
 						
-						board[(rows-1) - counters[i][j]][j].setBackground(Color.RED);
+						board[(rows-1) - counters[i][j]][j].setColor(Color.RED);
 						if (checkWinner(rows-1 - counters[i][j], j)) { return; }
 						if(counters[i][j] == columns-1) // if block to check if there is a draw or tie
 						{
@@ -305,7 +307,7 @@ public class Game implements ActionListener {
 	    int r = row;
 	    int c = column;
 	    int count = 1;
-	    Color current = board[r][c].getBackground();
+	    Color current = board[r][c].getColor();
 	    
 	    //System.out.println("first checkBounds is : " + checkBounds(r - 1, c + 1));
 	    if (checkBounds(r - 1, c + 1)) //Checking top Right Corner First
@@ -313,7 +315,7 @@ public class Game implements ActionListener {
 	    	while (checkBounds(r - 1, c + 1))
 	    	{
 	    		
-	    		Color next = board[r - 1][c + 1].getBackground();
+	    		Color next = board[r - 1][c + 1].getColor();
 	    		if (current.equals(next) && !(next.equals(Color.WHITE)))
 	    		{	count++;    }
 	    		else { break; }
@@ -332,7 +334,7 @@ public class Game implements ActionListener {
 	    		//System.out.println("second checkBounds is : " + checkBounds(r2 + 1, c2 - 1));
 	    		while(checkBounds(r2 + 1, c2 - 1)) //Checking Bottom Left Corner if Top Right doesn't reach win
 		    	{
-		    		Color next = board[r2 + 1][c2 - 1].getBackground();
+		    		Color next = board[r2 + 1][c2 - 1].getColor();
 		    		if (current.equals(next) && !(current.equals(Color.WHITE)))
 		    		{	count++;	}
 		    		else { count = 1; break; }
@@ -355,7 +357,7 @@ public class Game implements ActionListener {
 	    	//System.out.println("third checkBounds is : " + checkBounds(r3 + 1, c3 - 1));
 	    	while(checkBounds(r3 + 1, c3 - 1)) //Checking Bottom Left Corner if an edge case
 	    	{
-	    		Color next = board[r3 + 1][c3 - 1].getBackground();
+	    		Color next = board[r3 + 1][c3 - 1].getColor();
 	    		if (current.equals(next) && !(current.equals(Color.WHITE)))
 	    		{	count++;	}
 	    		else { count = 1; break; }
@@ -378,7 +380,7 @@ public class Game implements ActionListener {
 	    	
 	    	while (checkBounds(r - 1, c - 1))
 	    	{
-	    		Color next = board[r - 1][c - 1].getBackground();
+	    		Color next = board[r - 1][c - 1].getColor();
 	    		if (current.equals(next) && !(next.equals(Color.WHITE)))
 	    		{	count++;    }
 	    		else { break; }
@@ -396,7 +398,7 @@ public class Game implements ActionListener {
 	    		int c2 = column;
 	    		while(checkBounds(r2 + 1, c2 + 1)) //Checking Bottom Right Corner if Top Left doesn't reach Win
 		    	{
-		    		Color next = board[r2 + 1][c2 + 1].getBackground();
+		    		Color next = board[r2 + 1][c2 + 1].getColor();
 		    		if (current.equals(next) && !(current.equals(Color.WHITE)))
 		    		{	count++;	}
 		    		else { count = 1; break; }
@@ -418,7 +420,7 @@ public class Game implements ActionListener {
     		int c3 = column;
 	    	while(checkBounds(r3 + 1, c3 + 1)) //Checking Bottom Right Corner if an edge case
 	    	{
-	    		Color next = board[r3 + 1][c3 + 1].getBackground();
+	    		Color next = board[r3 + 1][c3 + 1].getColor();
 	    		if (current.equals(next) && !(current.equals(Color.WHITE)))
 	    		{	count++;	}
 	    		else { count = 1; break; }
@@ -462,8 +464,8 @@ public class Game implements ActionListener {
 		
 			for (int j = 0; j < columns - 1; j++)
 			{
-				Color current = board[i][j].getBackground();
-				Color next = board[i][j + 1].getBackground();
+				Color current = board[i][j].getColor();
+				Color next = board[i][j + 1].getColor();
 				if ((current.equals(Color.RED)) && (current.equals(next)))
 				{
 					redCount++;
@@ -497,8 +499,8 @@ public class Game implements ActionListener {
 			for (int j = rows - 1; j > 0; j--)
 			{
 				
-				Color current = board[j][i].getBackground();
-				Color next = board[j - 1][i].getBackground();
+				Color current = board[j][i].getColor();
+				Color next = board[j - 1][i].getColor();
 				if ((current.equals(Color.RED)) && (current.equals(next)))
 				{
 					redCount++;
