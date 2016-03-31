@@ -1,10 +1,6 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.net.URL;
-
-import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class Game extends MyButton implements ActionListener {
@@ -95,7 +91,6 @@ public class Game extends MyButton implements ActionListener {
 	{
 		ImageIcon img = new ImageIcon(getClass().getResource("pic.png"));
 		JPanel panel = new JPanel(new GridLayout(rows + 1, columns));
-		//panel.setBackground(Color.BLUE);
 		frame.setIconImage(img.getImage());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setPreferredSize(new Dimension(500,500));
@@ -132,7 +127,7 @@ public class Game extends MyButton implements ActionListener {
 	 * sets up the counter for each column
 	 * on the board to have an individual counter
 	 * to keep track of which pieces have been placed
-	 * on the boards
+	 * on the board
 	 */
 	private void setupCounter()
 	{
@@ -439,7 +434,7 @@ public class Game extends MyButton implements ActionListener {
 	}
 	
 	/**
-	 * checks to see if the parameters of in the bounds of the board
+	 * checks to see if the parameters are in bounds of the board
 	 * @param row
 	 * @param column
 	 * @return
@@ -532,7 +527,7 @@ public class Game extends MyButton implements ActionListener {
 		if(res == 0)
 		{
 			frame.dispose();
-			Game g = new Game(rows, columns, winCount);
+			new Game(rows, columns, winCount);
 		}
 		else{System.exit(0);}
 	}
@@ -549,7 +544,7 @@ public class Game extends MyButton implements ActionListener {
 		if(res == 0)
 		{
 			frame.dispose();
-			Game g = new Game(rows, columns, winCount);
+			new Game(rows, columns, winCount);
 		}
 		else{System.exit(0);}
 	}
@@ -557,7 +552,7 @@ public class Game extends MyButton implements ActionListener {
 	/**
 	 * creates a dialog that when certain
 	 * when no player wins it will display
-	 * a message and option for rematch
+	 * a message and option for a rematch
 	 */
 	private void displayDraw()
 	{
@@ -566,7 +561,7 @@ public class Game extends MyButton implements ActionListener {
 		if(res == 0)
 		{
 			frame.dispose();
-			Game g = new Game(rows, columns, winCount);
+			new Game(rows, columns, winCount);
 		}
 		else{System.exit(0);}
 	}
